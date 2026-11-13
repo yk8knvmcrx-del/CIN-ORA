@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fafafa">
+<title>RIEN.</title>
+
+<style>
+* {box-sizing:border-box}
+
+:root {
+ --bg:#fafafa;
+ --ink:#171717;
+ --muted:#999;
+ --line:#e9e9e9;
+}
+
+body {
+ margin:0;
+ min-height:100vh;
+ background:var(--bg);
+ color:var(--ink);
+ font-family:Arial,Helvetica,sans-serif;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ overflow:hidden;
+ transition:background .5s,color .5s;
+}
+
+#app {
+ width:min(650px,90%);
+ text-align:center;
+ position:relative;
+ z-index:2;
+}
+
+.logo {
+ position:fixed;
+ top:30px;
+ left:35px;
+ font-size:13px;
+ font-weight:800;
+ letter-spacing:3px;
+}
+
+.counter {
+ position:fixed;
+ top:30px;
+ right:35px;
+ font-size:11px;
+ color:var(--muted);
+}
+
+h1 {
+ font-size:clamp(45px,9vw,85px);
+ letter-spacing:-7px;
+ line-height:.95;
+ margin:0 0 25px;
+ font-weight:800;
+ animation:appear .9s cubic-bezier(.2,.8,.2,1);
+}
+
+p {
+ color:var(--muted);
+ font-size:14px;
+ line-height:1.7;
+ margin-bottom:35px;
+}
+
+button {
+ border:1px solid var(--ink);
+ background:var(--ink);
+ color:white;
+ padding:16px 25px;
+ border-radius:50px;
+ font-size:12px;
+ cursor:pointer;
+ transition:transform .3s,background .3s,color .3s;
+}
+
+button:hover {
+ transform:translateY(-4px);
+ background:transparent;
+ color:var(--ink);
+}
+
+button:active {
+ transform:scale(.94);
+}
+
+#secondary {
+ display:block;
+ margin:22px auto 0;
+ border:0;
+ background:transparent;
+ color:var(--muted);
+ font-size:11px;
+ padding:8px;
+}
+
+#secondary:hover {
+ color:var(--ink);
+ transform:none;
+}
+
+.footer {
+ position:fixed;
+ bottom:25px;
+ font-size:10px;
+ color:#aaa;
+ letter-spacing:1px;
+}
+
+#loading {
+ display:none;
+ position:fixed;
+ inset:0;
+ z-index:5;
+ background:var(--bg);
+ align-items:center;
+ justify-content:center;
+ flex-direction:column;
+}
+
+.loader {
+ width:35px;
+ height:35px;
+ border:2px solid var(--line);
+ border-top-color:var(--ink);
+ border-radius:50%;
+ animation:spin 1s linear infinite;
+}
+
+#loading p {
+ margin-top:20px;
+ font-size:12px;
+}
+
+@keyframes spin {to{transform:rotate(360deg)}}
+
+@keyframes appear {
+ from {opacity:0;transform:translateY(25px)}
+ to {opacity:1;transform:translateY(0)}
+}
+
+.shake {
+ animation:shake .3s;
+}
+
+@keyframes shake {
+ 0%,100%{transform:translateX(0)}
+ 25%{transform:translateX(-5px)}
+ 75%{transform:translateX(5px)}
+}
+
+#secret {
+ position:fixed;
+ bottom:70px;
+ font-size:11px;
+ color:var(--muted);
+ opacity:0;
+ transition:opacity .5s;
+}
+
+#secret.show {opacity:1}
+
+@media(max-width:500px) {
+ .logo {left:20px;top:22px}
+ .counter {right:20px;top:22px}
+ h1 {letter-spacing:-4px}
+}
+
+@media(prefers-reduced-motion:reduce) {
+ *,*:before,*:after {
+  animation-duration:.01ms!important;
+  transition-duration:.01ms!important;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<div class="logo">RIEN.</div>
+<div class="counter" id="counter">0 CLIC</div>
+
+<div id="app">
+ <h1 id="title">Tu pensais<br>vraiment qu'il<br>y aurait quelque<br>chose ici ?</h1>
+
+ <p id="description">
+ Félicitations. Tu viens d'ouvrir un site qui ne sert absolument à rien.
+ </p>
+
+ <button id="mainButton">Ne surtout pas cliquer.</button>
+
+ <button id="secondary">En fait, ferme cette page.</button>
+</div>
+
+<div id="secret">Tu es encore là ? Impressionnant.</div>
+
+<div id="loading">
+ <div class="loader"></div>
+ <p id="loadingText">Chargement de rien...</p>
+</div>
+
+<div class="footer">UN SITE INTERNET PARFAITEMENT INUTILE · 2026</div>
+
+<script>
+let clicks = 0;
+let seconds = 0;
+let loading = false;
+
+const title = document.querySelector("#title");
+const description = document.querySelector("#description");
+const button = document.querySelector("#mainButton");
+const counter = document.querySelector("#counter");
+const secret = document.querySelector("#secret");
+
+const messages = [
+ {
+  title:"Bravo.<br>Tu as cliqué.",
+  text:"Et maintenant ? Absolument rien. Comme prévu."
+ },
+ {
+  title:"Encore ?",
+  text:"Tu sais que ce bouton ne sert à rien, hein ?"
+ },
+ {
+  title:"Nous<br>observons.",
+  text:"Enfin non. Il n'y a personne derrière ce site."
+ },
+ {
+  title:"Erreur 404",
+  text:"Le sens de ta vie n'a pas été trouvé."
+ },
+ {
+  title:"Félicitations.",
+  text:"Tu viens de perdre quelques secondes précieuses."
+ },
+ {
+  title:"Tu insistes.",
+  text:"C'est presque admirable. Presque."
+ },
+ {
+  title:"ARRÊTE.",
+  text:"Sérieusement. Il n'y a RIEN à gagner."
+ },
+ {
+  title:"Bon.",
+  text:"Je crois qu'on va devoir trouver une solution."
+ },
+ {
+  title:"Tu es<br>incroyable.",
+  text:"Pas parce que tu cliques. Parce que tu continues."
+ },
+ {
+  title:"Le bouton<br>te remercie.",
+  text:"Il avait besoin d'attention aujourd'hui."
+ },
+ {
+  title:"C'est tout.",
+  text:"Non vraiment. C'est tout."
+ }
+];
+
+function update() {
+ clicks++;
+
+ counter.textContent = clicks + (clicks > 1 ? " CLICS" : " CLIC");
+
+ const index = Math.min(clicks - 1,messages.length - 1);
+ const message = messages[index];
+
+ title.innerHTML = message.title;
+ description.textContent = message.text;
+
+ title.classList.remove("shake");
+ void title.offsetWidth;
+ title.classList.add("shake");
+
+ if(clicks === 3) {
+  button.textContent = "Continuer à perdre son temps";
+ }
+
+ if(clicks === 5) {
+  document.body.style.background = "#f0ecff";
+ }
+
+ if(clicks === 7) {
+  document.body.style.background = "#fff0e8";
+ }
+
+ if(clicks === 10) {
+  secret.classList.add("show");
+ }
+
+ if(clicks === 12) {
+  button.textContent = "Dernier clic. Promis.";
+ }
+
+ if(clicks === 15) {
+  button.textContent = "Tu es vraiment déterminé.";
+  description.textContent = "Nous avons décidé de ne plus te juger.";
+ }
+
+ if(clicks === 20) {
+  document.body.style.background = "#171717";
+  document.body.style.color = "#fafafa";
+  button.style.borderColor = "#fafafa";
+  button.style.background = "#fafafa";
+  button.style.color = "#171717";
+  title.innerHTML = "Bienvenue<br>dans le<br>néant.";
+  description.textContent = "Tu as atteint le niveau maximum de rien.";
+ }
+}
+
+button.addEventListener("click",update);
+
+document.querySelector("#secondary").addEventListener("click",()=>{
+ title.innerHTML = "Non.<br>Reste.";
+ description.textContent = "On n'a pas fini de ne rien faire.";
+});
+
+let elapsed = 0;
+
+setInterval(()=>{
+ elapsed++;
+ seconds++;
+
+ if(seconds >= 60) {
+  seconds = 0;
+ }
+
+ counter.textContent =
+ clicks + (clicks > 1 ? " CLICS" : " CLIC")
+ + " · " + Math.floor(elapsed/60) + " MIN "
+ + seconds + " SEC";
+},1000);
+
+</script>
+</body>
+</html>
